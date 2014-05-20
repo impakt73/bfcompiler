@@ -35,9 +35,11 @@ int main()
     if(!interpreter.Execute(rootNode))
     {
         std::cout << "Failed to execute program!" << std::endl;
+        delete rootNode;
         return -1;
     }
 
+    delete rootNode;
     std::cout << "Program executed successfully." << std::endl;
 
     return 0;
