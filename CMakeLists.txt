@@ -14,7 +14,9 @@ set(SRC_LIST
     src/CommandNode.h
     src/LoopNode.h
     src/Interpreter.h
-    src/Interpreter.cpp)
+    src/Interpreter.cpp
+    src/Compiler.h
+    src/Compiler.cpp)
 
 include_directories(src)
 
