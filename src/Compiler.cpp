@@ -27,10 +27,11 @@ std::string Compiler::GenerateAssembly(Node *inRootNode)
 
     std::vector<Node*> childNodes = inRootNode->GetChildren();
     unsigned int childrenCount = childNodes.size();
+    unsigned int loopCounter = 0;
 
     for(unsigned int index = 0; index < childrenCount; ++index)
     {
-        GenerateAssemblyForNode(childNodes[index], index + 1, assemblyOutputBuffer);
+        GenerateAssemblyForNode(childNodes[index], &loopCounter, assemblyOutputBuffer);
     }
 
     assemblyOutputBuffer << "mov eax, 0x01" << sLineTerminator;
@@ -40,36 +41,65 @@ std::string Compiler::GenerateAssembly(Node *inRootNode)
     return assemblyOutputBuffer.str();
 }
 
-void Compiler::GenerateAssemblyForNode(Node *inNode, int inLoopId, std::stringstream& ioAssemblyOutputBuffer)
+void Compiler::GenerateAssemblyForNode(Node *inNode, unsigned int *inLoopCounter, std::stringstream& ioAssemblyOutputBuffer)
 {
     switch(inNode->GetType())
     {
         case kNodeType_Command:
         {
             CommandNode* commandNode = static_cast<CommandNode*>(inNode);
+            int commandCount = commandNode->GetCommandData();
             switch(commandNode->GetCommandType())
             {
                 case kCommandType_IncrementPointer:
                 {
-                    ioAssemblyOutputBuffer << "inc " << sPointerRegister << sLineTerminator;
+                    if(commandCount > 1)
+                    {
+                        ioAssemblyOutputBuffer << "add " << sPointerRegister << ", byte " << commandCount << sLineTerminator;
+                    }
+                    else
+                    {
+                        ioAssemblyOutputBuffer << "inc " << sPointerRegister << sLineTerminator;
+                    }
                     break;
                 }
 
                 case kCommandType_DecrementPointer:
                 {
-                    ioAssemblyOutputBuffer << "dec " << sPointerRegister << sLineTerminator;
+                    if(commandCount > 1)
+                    {
+                        ioAssemblyOutputBuffer << "sub " << sPointerRegister << ", byte " << commandCount << sLineTerminator;
+                    }
+                    else
+                    {
+                        ioAssemblyOutputBuffer << "dec " << sPointerRegister << sLineTerminator;
+                    }
                     break;
                 }
 
                 case kCommandType_IncrementValue:
                 {
-                    ioAssemblyOutputBuffer << "inc byte [memory + " << sPointerRegister << "]" << sLineTerminator;
+                    if(commandCount > 1)
+                    {
+                        ioAssemblyOutputBuffer << "add byte [memory + " << sPointerRegister << "], byte " << commandCount << sLineTerminator;
+                    }
+                    else
+                    {
+                        ioAssemblyOutputBuffer << "inc byte [memory + " << sPointerRegister << "]" << sLineTerminator;
+                    }
                     break;
                 }
 
                 case kCommandType_DecrementValue:
                 {
-                    ioAssemblyOutputBuffer << "dec byte [memory + " << sPointerRegister << "]" << sLineTerminator;
+                    if(commandCount > 1)
+                    {
+                        ioAssemblyOutputBuffer << "sub byte [memory + " << sPointerRegister << "], byte " << commandCount << sLineTerminator;
+                    }
+                    else
+                    {
+                        ioAssemblyOutputBuffer << "dec byte [memory + " << sPointerRegister << "]" << sLineTerminator;
+                    }
                     break;
                 }
 
@@ -107,8 +137,9 @@ void Compiler::GenerateAssemblyForNode(Node *inNode, int inLoopId, std::stringst
 
         case kNodeType_Loop:
         {
-            std::string loopBeginLabel = "_Loop_Begin_" + std::to_string(inLoopId);
-            std::string loopEndLabel = "_Loop_End_" + std::to_string(inLoopId);
+            std::string loopBeginLabel = "_Loop_Begin_" + std::to_string(*inLoopCounter);
+            std::string loopEndLabel = "_Loop_End_" + std::to_string(*inLoopCounter);
+            (*inLoopCounter)++;
 
             ioAssemblyOutputBuffer << loopBeginLabel << ":" << sLineTerminator;
 
@@ -120,7 +151,7 @@ void Compiler::GenerateAssemblyForNode(Node *inNode, int inLoopId, std::stringst
             unsigned int childrenCount = childNodes.size();
             for(unsigned int index = 0; index < childrenCount; ++index)
             {
-                GenerateAssemblyForNode(childNodes[index], inLoopId + (index + 1), ioAssemblyOutputBuffer);
+                GenerateAssemblyForNode(childNodes[index], inLoopCounter, ioAssemblyOutputBuffer);
             }
 
             ioAssemblyOutputBuffer << "jmp " << loopBeginLabel << sLineTerminator;

@@ -32,25 +32,25 @@ bool Interpreter::ExecuteNode(Node* inNode)
             {
                 case kCommandType_IncrementPointer:
                 {
-                    mMemoryIndex++;
+                    mMemoryIndex += commandNode->GetCommandData();
                     break;
                 }
 
                 case kCommandType_DecrementPointer:
                 {
-                    mMemoryIndex--;
+                    mMemoryIndex -= commandNode->GetCommandData();
                     break;
                 }
 
                 case kCommandType_IncrementValue:
                 {
-                    mMemory[mMemoryIndex]++;
+                    mMemory[mMemoryIndex] += commandNode->GetCommandData();
                     break;
                 }
 
                 case kCommandType_DecrementValue:
                 {
-                    mMemory[mMemoryIndex]--;
+                    mMemory[mMemoryIndex] -= commandNode->GetCommandData();
                     break;
                 }
 

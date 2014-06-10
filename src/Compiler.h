@@ -16,7 +16,7 @@ private:
     Compiler(const Compiler& other) = delete;
     Compiler& operator=(const Compiler& other) = delete;
 
-    void GenerateAssemblyForNode(Node* inNode, int inLoopId, std::stringstream& ioAssemblyOutputBuffer);
+    void GenerateAssemblyForNode(Node* inNode, unsigned int* inLoopCounter, std::stringstream& ioAssemblyOutputBuffer);
 
     static const std::string sPointerRegister;
     static const std::string sLineTerminator;

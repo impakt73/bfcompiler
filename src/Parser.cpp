@@ -16,25 +16,29 @@ bool Parser::Parse(const std::vector<eToken>& inTokens, Node **outParseTree)
         {
             case kToken_IncrementPointer:
             {
-                currentNode->InsertNode(new CommandNode(kCommandType_IncrementPointer));
+                int operationCount = GetOperationCount(index, inTokens, kToken_IncrementPointer);
+                currentNode->InsertNode(new CommandNode(kCommandType_IncrementPointer, operationCount));
                 break;
             }
 
             case kToken_DecrementPointer:
             {
-                currentNode->InsertNode(new CommandNode(kCommandType_DecrementPointer));
+                int operationCount = GetOperationCount(index, inTokens, kToken_DecrementPointer);
+                currentNode->InsertNode(new CommandNode(kCommandType_DecrementPointer, operationCount));
                 break;
             }
 
             case kToken_IncrementValue:
             {
-                currentNode->InsertNode(new CommandNode(kCommandType_IncrementValue));
+                int operationCount = GetOperationCount(index, inTokens, kToken_IncrementValue);
+                currentNode->InsertNode(new CommandNode(kCommandType_IncrementValue, operationCount));
                 break;
             }
 
             case kToken_DecrementValue:
             {
-                currentNode->InsertNode(new CommandNode(kCommandType_DecrementValue));
+                int operationCount = GetOperationCount(index, inTokens, kToken_DecrementValue);
+                currentNode->InsertNode(new CommandNode(kCommandType_DecrementValue, operationCount));
                 break;
             }
 
@@ -78,4 +82,20 @@ bool Parser::Parse(const std::vector<eToken>& inTokens, Node **outParseTree)
 
     *outParseTree = rootNode;
     return true;
+}
+
+int Parser::GetOperationCount(unsigned int &ioCurrentIndex, const std::vector<eToken>& inTokens, eToken inInstructionToken)
+{
+    int operationCount = 1;
+    int currentIndex = ioCurrentIndex + 1;
+    unsigned int tokenCount =inTokens.size();
+    for(; currentIndex < tokenCount; currentIndex++)
+    {
+        if(inTokens[currentIndex] == inInstructionToken)
+            operationCount++;
+        else
+            break;
+    }
+    ioCurrentIndex = currentIndex - 1;
+    return operationCount;
 }

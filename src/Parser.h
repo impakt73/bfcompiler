@@ -15,4 +15,6 @@ private:
 
     Parser(const Parser& other) = delete;
     Parser& operator=(const Parser& other) = delete;
+
+    inline static int GetOperationCount(unsigned int& ioCurrentIndex, const std::vector<eToken>& inTokens, eToken inInstructionToken);
 };
